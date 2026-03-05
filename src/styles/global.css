@@ -1,0 +1,31 @@
+/* ── GLOBAL VARIABLES & RESET ── */
+:root {
+  --black: #0a0a0a;
+  --white: #f8f6f2;
+  --brown: #6b4c3b;
+  --brown-light: #8b6455;
+  --gray: #888;
+  --light-gray: #e8e4df;
+  --font-display: 'Cormorant Garamond', serif;
+  --font-body: 'Montserrat', sans-serif;
+}
+
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--white);
+  color: var(--black);
+  overflow-x: hidden;
+}
+
+a { text-decoration: none; color: inherit; }
+ul { list-style: none; }
+button { cursor: pointer; font-family: var(--font-body); }
+img { max-width: 100%; display: block; }

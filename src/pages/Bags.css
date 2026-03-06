@@ -539,6 +539,11 @@
   .bag-name { font-size: 11px; }
   .bag-new { font-size: 12px; }
   .bag-cart-btn { font-size: 9px; padding: 10px 6px; letter-spacing: 1px; }
+  .reset-btn {
+    padding: 8px 10px;
+    font-size: 9px;
+    letter-spacing: 1px;
+  }
 }
 @media (max-width: 380px) {
   .bags-grid { grid-template-columns: repeat(2, 1fr) !important; padding: 0 8px; gap: 6px; }

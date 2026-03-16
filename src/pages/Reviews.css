@@ -172,3 +172,49 @@
   letter-spacing: 3px;
   text-transform: uppercase;
 }
+.rf-upload-wrap {
+  border: 2px dashed var(--light-gray);
+  padding: 20px;
+  cursor: pointer;
+  transition: border-color 0.3s;
+  text-align: center;
+}
+.rf-upload-wrap:hover { border-color: var(--brown); }
+
+.rf-upload-placeholder svg { color: var(--gray); margin-bottom: 8px; }
+.rf-upload-placeholder p {
+  font-size: 13px;
+  color: var(--black);
+  margin: 0 0 4px;
+  font-weight: 500;
+}
+.rf-upload-placeholder span {
+  font-size: 11px;
+  color: var(--gray);
+  letter-spacing: 0.5px;
+}
+
+.rf-preview-wrap {
+  position: relative;
+  display: inline-block;
+}
+.rf-preview-img {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+.rf-remove-img {
+  position: absolute;
+  top: -8px; right: -8px;
+  width: 22px; height: 22px;
+  background: #e02020;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

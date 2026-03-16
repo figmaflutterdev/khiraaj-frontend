@@ -1,17 +1,19 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { submitReview } from '../api'
 import './Reviews.css'
 import ReviewsSection from '../components/ReviewsSection'
 
-
 const stars = [1, 2, 3, 4, 5]
 
 export default function Reviews() {
-  const [form, setForm] = useState({ name: '', product: '', rating: 0, review: '' })
+  const [form, setForm]         = useState({ name: '', product: '', rating: 0, review: '' })
+  const [image, setImage]       = useState(null)
+  const [preview, setPreview]   = useState(null)
   const [hover, setHover]       = useState(0)
   const [submitted, setSubmitted] = useState(false)
   const [loading, setLoading]   = useState(false)
   const [errors, setErrors]     = useState({})
+  const fileRef = useRef()
 
   const validate = () => {
     const e = {}
@@ -23,11 +25,24 @@ export default function Reviews() {
     return Object.keys(e).length === 0
   }
 
+  const handleImage = (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+    setImage(file)
+    setPreview(URL.createObjectURL(file))
+  }
+
   const handleSubmit = async () => {
     if (!validate()) return
     setLoading(true)
     try {
-      await submitReview(form)
+      const formData = new FormData()
+      formData.append('name', form.name)
+      formData.append('product', form.product)
+      formData.append('rating', form.rating)
+      formData.append('review', form.review)
+      if (image) formData.append('product_image', image)
+      await submitReview(formData)
       setSubmitted(true)
     } catch {
       setErrors({ submit: 'Something went wrong. Please try again.' })
@@ -118,12 +133,32 @@ export default function Reviews() {
             {errors.review && <p className="rf-error-msg">{errors.review}</p>}
           </div>
 
+          {/* Image Upload */}
+          <div className="rf-field">
+            <label className="rf-label">Product Photo <span style={{color:'var(--gray)', fontWeight:400}}>(Optional)</span></label>
+            <div className="rf-upload-wrap" onClick={() => fileRef.current.click()}>
+              {preview ? (
+                <div className="rf-preview-wrap">
+                  <img src={preview} alt="preview" className="rf-preview-img" />
+                  <button className="rf-remove-img" onClick={e => { e.stopPropagation(); setImage(null); setPreview(null) }}>✕</button>
+                </div>
+              ) : (
+                <div className="rf-upload-placeholder">
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                  <p>Click to upload photo</p>
+                  <span>JPG, PNG up to 5MB</span>
+                </div>
+              )}
+            </div>
+            <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleImage} />
+          </div>
+
           {errors.submit && <p className="rf-error-msg">{errors.submit}</p>}
 
           <button className="rf-submit" onClick={handleSubmit} disabled={loading}>
             {loading ? 'Submitting...' : 'SUBMIT REVIEW'}
           </button>
-</div>
+        </div>
       </div>
       <ReviewsSection />
     </div>

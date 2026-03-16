@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useCart } from '../context/CartContext'
 import { getProducts } from '../api'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import './BestSeller.css'
 
 const hardcodedProducts = [
@@ -23,6 +24,7 @@ const CartIcon = () => (
 
 export default function BestSeller() {
   const { addToCart } = useCart()
+  const navigate = useNavigate()
   const [apiProducts, setApiProducts] = useState([])
   const [added, setAdded]             = useState({})
   const [hovered, setHovered]         = useState({})
@@ -31,7 +33,7 @@ export default function BestSeller() {
   const [showAll, setShowAll]         = useState(false)
 
   useEffect(() => {
-    getProducts()
+    getProducts(null, true)   // bestseller=true
       .then(data => {
         const formatted = data.map(p => ({
           id: `api_${p.id}`, name: p.name, price: p.price,
@@ -42,7 +44,6 @@ export default function BestSeller() {
       .catch(() => {})
   }, [])
 
-  // Responsive visible count
   useEffect(() => {
     const update = () => {
       if (window.innerWidth < 600) setVisibleCount(1)
@@ -55,18 +56,17 @@ export default function BestSeller() {
     return () => window.removeEventListener('resize', update)
   }, [])
 
-  const products = [...apiProducts, ...hardcodedProducts]
-
+  const products = apiProducts.length > 0 ? apiProducts : hardcodedProducts
   const prev = () => setStartIndex(i => Math.max(0, i - 1))
   const next = () => setStartIndex(i => Math.min(products.length - visibleCount, i + 1))
 
-  const handleAddToCart = (product) => {
+  const handleAddToCart = (e, product) => {
+    e.stopPropagation()
     addToCart(product)
     setAdded(prev => ({ ...prev, [product.id]: true }))
     setTimeout(() => setAdded(prev => ({ ...prev, [product.id]: false })), 1500)
   }
 
-  // Mobile: show all or first 2
   const isMobile = visibleCount <= 2
   const displayedProducts = isMobile
     ? (showAll ? products : products.slice(0, 2))
@@ -92,7 +92,9 @@ export default function BestSeller() {
 
         <div className="bs-products">
           {displayedProducts.map(product => (
-            <div key={product.id} className="bs-card">
+            <div key={product.id} className="bs-card"
+              onClick={() => navigate(`/product/${product.id}`)}
+              style={{ cursor: 'pointer' }}>
               <div className="bs-discount">-{product.discount}%</div>
               <div className="bs-img-wrap">
                 <img src={product.img} alt={product.name} className="bs-img" />
@@ -106,17 +108,13 @@ export default function BestSeller() {
               </div>
               <button
                 className={`bs-cart-btn ${added[product.id] ? 'added' : ''}`}
-                onClick={() => handleAddToCart(product)}
+                onClick={(e) => handleAddToCart(e, product)}
                 onMouseEnter={() => setHovered(p => ({ ...p, [product.id]: true }))}
                 onMouseLeave={() => setHovered(p => ({ ...p, [product.id]: false }))}
               >
-                {added[product.id] ? (
-                  <span className="btn-content">ADDED</span>
-                ) : hovered[product.id] ? (
-                  <span className="btn-content"><CartIcon /></span>
-                ) : (
-                  <span className="btn-content">ADD TO CART</span>
-                )}
+                {added[product.id] ? <span className="btn-content">ADDED</span>
+                  : hovered[product.id] ? <span className="btn-content"><CartIcon /></span>
+                  : <span className="btn-content">ADD TO CART</span>}
               </button>
             </div>
           ))}
@@ -129,7 +127,6 @@ export default function BestSeller() {
         )}
       </div>
 
-      {/* Mobile: Show More button */}
       {isMobile && products.length > 2 && (
         <div className="bs-show-more">
           <button onClick={() => setShowAll(s => !s)} className="bs-show-more-btn">

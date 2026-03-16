@@ -1,9 +1,20 @@
 import { useState, useEffect } from 'react'
+import { useParams, useNavigate } from 'react-router-dom'
 import { useCart } from '../context/CartContext'
 import { getProducts } from '../api'
-import { useNavigate } from 'react-router-dom'
 import AnnouncementBar from '../components/AnnouncementBar'
-import './NewArrival.css'
+import './CategoryPage.css'
+
+const CATEGORY_LABELS = {
+  'tote-bags':      'Tote Bags',
+  'top-handle':     'Hand Bags',
+  'clutch-bags':    'Clutch Bags',
+  '3-piece-bags':   '3 Piece Bags',
+  'crossbody-bags': 'Crossbody Bags',
+  'shoulder-bags':  'Shoulder Bags',
+  'luxury-bags':    'Luxury Bags',
+  'laptop-bags':    'Laptop Bags',
+}
 
 const CartIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -13,18 +24,22 @@ const CartIcon = () => (
   </svg>
 )
 
-export default function NewArrival() {
-  const { addToCart } = useCart()
+export default function CategoryPage() {
+  const { category } = useParams()
   const navigate = useNavigate()
+  const { addToCart } = useCart()
 
   const [products, setProducts] = useState([])
   const [loading, setLoading]   = useState(true)
   const [added, setAdded]       = useState({})
   const [hovered, setHovered]   = useState({})
 
+  const label = CATEGORY_LABELS[category] || category
+
   useEffect(() => {
     setLoading(true)
-    getProducts('new-arrival')
+    setProducts([])
+    getProducts(category)
       .then(data => {
         const formatted = data.map(p => ({
           id: `api_${p.id}`,
@@ -41,7 +56,7 @@ export default function NewArrival() {
         setLoading(false)
       })
       .catch(() => setLoading(false))
-  }, [])
+  }, [category])
 
   const handleAddToCart = (e, product) => {
     e.stopPropagation()
@@ -52,32 +67,30 @@ export default function NewArrival() {
   }
 
   return (
-    <div className="na-page">
+    <div className="cp-page">
       <AnnouncementBar />
 
       {/* Hero */}
-      <div className="na-hero">
-        <p className="na-tag">JUST DROPPED</p>
-        <h1 className="na-title">NEW ARRIVALS</h1>
-        <p className="na-subtitle">Fresh styles, just in</p>
+      <div className="cp-hero">
+        <p className="cp-tag">KHIRAAJ COLLECTION</p>
+        <h1 className="cp-title">{label.toUpperCase()}</h1>
+        <p className="cp-subtitle">Handpicked styles just for you</p>
       </div>
 
       {/* Loading */}
       {loading && (
-        <div className="na-grid">
-          {[1,2,3,4].map(i => (
-            <div key={i} className="na-skeleton" />
-          ))}
+        <div className="cp-grid">
+          {[1,2,3,4].map(i => <div key={i} className="cp-skeleton" />)}
         </div>
       )}
 
       {/* Empty */}
       {!loading && products.length === 0 && (
-        <div className="na-empty">
-          <div className="na-empty-icon">✦</div>
-          <h2 className="na-empty-title">Coming Soon</h2>
-          <p className="na-empty-text">New arrivals are on their way. Check back soon!</p>
-          <button className="na-empty-btn" onClick={() => navigate('/bags')}>
+        <div className="cp-empty">
+          <div className="cp-empty-icon">✦</div>
+          <h2 className="cp-empty-title">Coming Soon</h2>
+          <p className="cp-empty-text">No products in this category yet. Check back soon!</p>
+          <button className="cp-empty-btn" onClick={() => navigate('/bags')}>
             SHOP ALL BAGS
           </button>
         </div>
@@ -86,51 +99,50 @@ export default function NewArrival() {
       {/* Products */}
       {!loading && products.length > 0 && (
         <>
-          <div className="na-count">
+          <div className="cp-count">
             {products.length} {products.length === 1 ? 'product' : 'products'}
           </div>
-          <div className="na-grid">
+          <div className="cp-grid">
             {products.map((product, i) => (
               <div
                 key={product.id}
-                className={`na-card ${!product.inStock ? 'na-card--oos' : ''}`}
+                className={`cp-card ${!product.inStock ? 'cp-card--oos' : ''}`}
                 onClick={() => navigate(`/product/${product.id}`)}
                 style={{ animationDelay: `${i * 0.08}s` }}
               >
                 {product.discount > 0 && (
-                  <div className="na-badge-discount">-{product.discount}%</div>
+                  <div className="cp-badge-discount">-{product.discount}%</div>
                 )}
-                <div className="na-badge-new">NEW</div>
-                {!product.inStock && <div className="na-badge-oos">Out of Stock</div>}
+                {!product.inStock && <div className="cp-badge-oos">Out of Stock</div>}
 
-                <div className="na-img-wrap">
-                  <img src={product.img} alt={product.name} className="na-img" />
+                <div className="cp-img-wrap">
+                  <img src={product.img} alt={product.name} className="cp-img" />
                 </div>
 
-                <div className="na-info">
-                  <p className="na-name">{product.name}</p>
+                <div className="cp-info">
+                  <p className="cp-name">{product.name}</p>
                   {product.color && (
-                    <div className="na-color-row">
-                      <span className="na-color-dot" style={{ background: product.colorHex }} />
-                      <span className="na-color-name">{product.color}</span>
+                    <div className="cp-color-row">
+                      <span className="cp-color-dot" style={{ background: product.colorHex }} />
+                      <span className="cp-color-name">{product.color}</span>
                     </div>
                   )}
-                  <div className="na-prices">
+                  <div className="cp-prices">
                     {product.oldPrice && (
-                      <span className="na-old">Rs.{product.oldPrice.toLocaleString()}.00</span>
+                      <span className="cp-old">Rs.{product.oldPrice.toLocaleString()}.00</span>
                     )}
-                    <span className="na-new">Rs.{product.price.toLocaleString()}.00</span>
+                    <span className="cp-new">Rs.{product.price.toLocaleString()}.00</span>
                   </div>
                 </div>
 
                 <button
-                  className={`na-cart-btn ${added[product.id] ? 'added' : ''} ${!product.inStock ? 'disabled' : ''}`}
+                  className={`cp-cart-btn ${added[product.id] ? 'added' : ''} ${!product.inStock ? 'disabled' : ''}`}
                   onClick={(e) => handleAddToCart(e, product)}
                   onMouseEnter={() => setHovered(p => ({ ...p, [product.id]: true }))}
                   onMouseLeave={() => setHovered(p => ({ ...p, [product.id]: false }))}
                   disabled={!product.inStock}
                 >
-                  <span className="na-btn-content">
+                  <span className="cp-btn-content">
                     {!product.inStock
                       ? 'OUT OF STOCK'
                       : added[product.id]

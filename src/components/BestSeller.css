@@ -271,3 +271,20 @@
   opacity: 1;
   position: relative;  /* pehli image space le */
 }
+.bs-img-dots {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 5px;
+  z-index: 3;
+}
+.bs-img-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.5);
+  transition: background 0.3s;
+}
+.bs-img-dot.active { background: white; }

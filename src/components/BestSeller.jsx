@@ -16,17 +16,17 @@ const hardcodedProducts = [
 
 function BSCard({ product, onAddToCart, added }) {
   const navigate = useNavigate()
-  const [hovered, setHovered] = useState(false)
   const [imgIndex, setImgIndex] = useState(0)
   const intervalRef = useRef(null)
+  const touchStartX = useRef(null)
 
   const allImages = [
     product.img,
     ...((product.gallery || []).map(g => g.image || g))
   ].filter(Boolean)
 
+  // Desktop — hover slideshow
   const startSlideshow = () => {
-    setHovered(true)
     if (allImages.length <= 1) return
     intervalRef.current = setInterval(() => {
       setImgIndex(i => (i + 1) % allImages.length)
@@ -34,9 +34,24 @@ function BSCard({ product, onAddToCart, added }) {
   }
 
   const stopSlideshow = () => {
-    setHovered(false)
     setImgIndex(0)
     clearInterval(intervalRef.current)
+  }
+
+  // Mobile — touch swipe
+  const handleTouchStart = (e) => {
+    touchStartX.current = e.touches[0].clientX
+  }
+
+  const handleTouchEnd = (e) => {
+    if (touchStartX.current === null) return
+    const diff = touchStartX.current - e.changedTouches[0].clientX
+    if (diff > 40) {
+      setImgIndex(i => (i + 1) % allImages.length)
+    } else if (diff < -40) {
+      setImgIndex(i => (i - 1 + allImages.length) % allImages.length)
+    }
+    touchStartX.current = null
   }
 
   useEffect(() => () => clearInterval(intervalRef.current), [])
@@ -47,6 +62,8 @@ function BSCard({ product, onAddToCart, added }) {
       onClick={() => navigate(`/product/${product.id}`)}
       onMouseEnter={startSlideshow}
       onMouseLeave={stopSlideshow}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
     >
       <div className="bs-discount">-{product.discount}%</div>
 
@@ -60,6 +77,13 @@ function BSCard({ product, onAddToCart, added }) {
           />
         ))}
 
+        {allImages.length > 1 && (
+          <div className="bs-img-dots">
+            {allImages.map((_, i) => (
+              <span key={i} className={`bs-img-dot ${i === imgIndex ? 'active' : ''}`} />
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="bs-info">

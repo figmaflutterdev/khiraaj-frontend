@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import he from '../assets/he.jpeg'
 import hei from '../assets/hei.jpeg'
@@ -9,37 +9,40 @@ const slides = [
     tag: 'New Collection 2025',
     title: 'Carry Your',
     titleItalic: 'Story',
-    desc: 'Handcrafted bags that blend timeless elegance with modern utility. Each piece tells a story worth carrying.',
+    desc: 'Handcrafted bags that blend timeless elegance with modern utility.',
     btnText: 'Shop Collection',
     btnLink: '/bags',
-    img: he,
+    video: '/videos/video1.mp4',
   },
   {
     tag: 'Accessories',
     title: 'Elevate Your',
     titleItalic: 'Style',
-    desc: 'Discover our exclusive accessories collection. Premium quality pieces crafted for the modern woman.',
+    desc: 'Discover our exclusive accessories collection.',
     btnText: 'Shop Accessories',
     btnLink: '/accessories',
-    img: hei,
+    video: '/videos/video2.mp4',
+
   },
   {
     tag: 'Office Essentials',
     title: 'Work in',
     titleItalic: 'Elegance',
-    desc: 'Professional bags designed for the modern workspace. Organized, sleek, and built to last.',
+    desc: 'Professional bags designed for the modern workspace.',
     btnText: 'Explore Now',
     btnLink: '/bags',
-    img: he,
+    video: '/videos/video3.mp4',
+
   },
   {
     tag: 'Limited Edition',
     title: 'Luxury',
     titleItalic: 'Redefined',
-    desc: 'Exclusive pieces with premium materials. Limited availability',
+    desc: 'Exclusive pieces with premium materials. Limited availability.',
     btnText: 'View New Arrivals',
     btnLink: '/new-arrival',
-    img: hei,
+    video: '/videos/video4.mp4',
+  
   },
   {
     tag: 'Free Delivery',
@@ -48,18 +51,32 @@ const slides = [
     desc: 'Free delivery on orders available across Pakistan.',
     btnText: 'Shop Now',
     btnLink: '/bags',
-    img:he,
+    video: '/videos/video5.mp4',
+
   },
 ]
 
 export default function HeroSlider() {
   const [current, setCurrent] = useState(0)
+  const videoRefs = useRef([])
 
-  const goTo = (n) => setCurrent((n + slides.length) % slides.length)
+  const goTo = (n) => {
+    const next = (n + slides.length) % slides.length
+    setCurrent(next)
+  }
 
+  // Jab slide change ho — active video play karo, baaki pause karo
   useEffect(() => {
-    const timer = setInterval(() => goTo(current + 1), 5000)
-    return () => clearInterval(timer)
+    videoRefs.current.forEach((vid, i) => {
+      if (!vid) return
+      if (i === current) {
+        vid.currentTime = 0
+        vid.play().catch(() => {})
+      } else {
+        vid.pause()
+        vid.currentTime = 0
+      }
+    })
   }, [current])
 
   return (
@@ -67,14 +84,26 @@ export default function HeroSlider() {
       {slides.map((slide, i) => (
         <div key={i} className={`slide ${i === current ? 'active' : ''}`}>
 
-          {/* Background Image */}
+          {/* Video background */}
+          <video
+            ref={el => videoRefs.current[i] = el}
+            className="slide-video"
+            muted
+            playsInline
+            preload="auto"
+            onEnded={() => goTo(current + 1)}
+          >
+            <source src={slide.video} type="video/mp4" />
+          </video>
+
+          {/* Fallback image agar video load na ho */}
           <div
             className="slide-bg"
             style={{ backgroundImage: `url(${slide.img})` }}
           />
+
           <div className="slide-overlay" />
 
-          {/* Content */}
           <div className="slide-content">
             <span className="slide-tag">{slide.tag}</span>
             <h1 className="slide-title">

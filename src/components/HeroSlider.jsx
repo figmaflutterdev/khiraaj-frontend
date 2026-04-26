@@ -6,7 +6,7 @@ import './HeroSlider.css'
 
 const slides = [
   {
-    tag: 'New Collection 2025',
+    tag: 'New Collection 2026',
     title: 'Carry Your',
     titleItalic: 'Story',
     desc: 'Handcrafted bags that blend timeless elegance with modern utility.',
